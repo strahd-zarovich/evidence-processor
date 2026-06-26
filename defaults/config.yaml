@@ -40,6 +40,9 @@ database:
   username: evidence_user
   password: CHANGE_ME
 
+  admin_username: root
+  admin_password: CHANGE_ME
+
   connection_timeout: 10
   charset: utf8mb4
 

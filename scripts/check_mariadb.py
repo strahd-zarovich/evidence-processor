@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+"""
+==============================================================================
+Evidence Processor
+
+File:
+    check_mariadb.py
+
+Purpose:
+    Verify that Evidence Processor can connect to MariaDB.
+
+This script does not:
+    - Create databases
+    - Create users
+    - Create tables
+    - Process documents
+==============================================================================
+"""
 
 from common import ConfigError, fail, load_config
 from database import Database, DatabaseError
@@ -13,21 +30,20 @@ def main():
         logger.info("Starting MariaDB connection check")
 
         db = Database(config, logger)
-
         db.connect()
         db.ping()
 
-        result = db.query_one("SELECT VERSION() AS version, DATABASE() AS database_name;")
-
-        logger.info("MariaDB connection successful")
-        logger.info("Server version: %s", result.get("version"))
-        logger.info("Database: %s", result.get("database_name"))
+        result = db.query_one(
+            "SELECT VERSION() AS version;"
+        )
 
         db.disconnect()
 
+        logger.info("MariaDB connection successful")
+        logger.info("Server version: %s", result.get("version"))
+
         print("MariaDB connection successful.")
         print(f"Server version: {result.get('version')}")
-        print(f"Database: {result.get('database_name')}")
 
     except ConfigError as e:
         fail(f"Configuration error: {e}")

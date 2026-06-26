@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# ------------------------------------------------------------------------------
-# Evidence Processor Entrypoint
+# ==============================================================================
+# Evidence Processor
+#
+# File:
+#     entrypoint.sh
+#
+# Purpose:
+#     Container startup controller.
 #
 # Responsibilities:
-#   - Prepare /data folder structure.
-#   - Seed editable config files from /app/defaults.
-#   - Normalize permissions for UnRAID appdata.
-#   - Run the current startup command.
-# ------------------------------------------------------------------------------
+#     - Prepare /data folder structure.
+#     - Seed editable config files from /app/defaults.
+#     - Normalize UnRAID appdata permissions.
+#     - Run startup checks in order.
+#     - Stop with clear messages when setup is incomplete.
+#
+# This script should not:
+#     - Parse config.yaml directly.
+#     - Create database objects directly.
+#     - Process documents directly.
+# ==============================================================================
 
 PUID="${PUID:-99}"
 PGID="${PGID:-100}"
@@ -31,7 +43,8 @@ mkdir -p "$CONFIG_DIR" "$LOG_DIR"
 umask "$UMASK"
 
 # ------------------------------------------------------------------------------
-# Seed default config files if missing.
+# Seed default files.
+#
 # Existing user-edited files are never overwritten.
 # ------------------------------------------------------------------------------
 
@@ -45,17 +58,14 @@ for file in /app/defaults/*; do
 done
 
 # ------------------------------------------------------------------------------
-# Normalize permissions so UnRAID SMB/editor can modify config files.
+# Normalize UnRAID appdata permissions.
 # ------------------------------------------------------------------------------
 
 chgrp -R "$PGID" "$DATA_DIR" 2>/dev/null || true
 chmod -R g+rwX "$DATA_DIR" 2>/dev/null || true
 chmod g+s "$CONFIG_DIR" "$LOG_DIR" 2>/dev/null || true
-
-# Also make shell scripts executable.
 find "$CONFIG_DIR" -type f -name "*.sh" -exec chmod 775 {} \; 2>/dev/null || true
 
-# Avoid getpass/getuser issues when running as numeric UID.
 export USER="${USER:-nobody}"
 export LOGNAME="${LOGNAME:-nobody}"
 export HOME="${HOME:-/tmp}"
@@ -64,5 +74,62 @@ log INFO "Evidence Processor starting..."
 log INFO "Config: $EP_CONFIG"
 log INFO "MariaDB Host: ${MARIADB_HOST:-not set}"
 
-# For v0.0.1, run the MariaDB connection check.
-exec python3 /app/scripts/check_mariadb.py
+# ------------------------------------------------------------------------------
+# Step 1: Validate config.yaml.
+# ------------------------------------------------------------------------------
+
+set +e
+/app/scripts/check_config.py
+CONFIG_RC=$?
+set -e
+
+case "$CONFIG_RC" in
+  0)
+    log INFO "Configuration check passed."
+    ;;
+  3)
+    log ERROR "Database password is still CHANGE_ME."
+    log ERROR "Edit /data/config/config.yaml, then restart the container."
+    exit 1
+    ;;
+  *)
+    log ERROR "Configuration check failed with exit code $CONFIG_RC."
+    exit 1
+    ;;
+esac
+
+# ------------------------------------------------------------------------------
+# Step 2: Check whether configured database already exists.
+# ------------------------------------------------------------------------------
+
+set +e
+/app/scripts/check_database.py
+DB_CHECK_RC=$?
+set -e
+
+case "$DB_CHECK_RC" in
+  0)
+    log INFO "Database already exists. Continuing startup."
+    ;;
+  1)
+    log WARNING "Database does not exist yet."
+    log INFO "Database initialization will be added in the next build."
+    exit 1
+    ;;
+  *)
+    log ERROR "Database check failed. Verify MariaDB host, port, and configuration."
+    exit 1
+    ;;
+esac
+
+# ------------------------------------------------------------------------------
+# Step 3: Ensure MariaDB database and application user exist.
+# ------------------------------------------------------------------------------
+
+/app/scripts/initialize_database.py
+
+# ------------------------------------------------------------------------------
+# Step 4: Final MariaDB connection test using the application user.
+# ------------------------------------------------------------------------------
+
+exec /app/scripts/check_mariadb.py

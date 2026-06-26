@@ -21,7 +21,7 @@
 #
 # ==============================================================================
 
-set -e
+set -Eeuo pipefail
 
 # ------------------------------------------------------------------------------
 # Administrator Credentials
@@ -40,66 +40,37 @@ ADMIN_PASSWORD="CHANGE_ME"
 CONFIG_FILE="${EP_CONFIG:-/data/config/config.yaml}"
 
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo ""
-    echo "ERROR: Configuration file not found."
-    echo ""
-    echo "Expected:"
-    echo "    $CONFIG_FILE"
-    echo ""
+    echo "ERROR: Configuration file not found: $CONFIG_FILE"
     exit 1
 fi
 
-# ------------------------------------------------------------------------------
-# Read MariaDB Host
-# ------------------------------------------------------------------------------
-
-if [ -z "$MARIADB_HOST" ]; then
-    echo ""
-    echo "ERROR: Docker variable MARIADB_HOST is not set."
-    echo ""
+if [ -z "${MARIADB_HOST:-}" ]; then
+    echo "ERROR: MARIADB_HOST is not set."
     exit 1
 fi
 
-DB_HOST=$(echo "$MARIADB_HOST" | cut -d':' -f1)
-DB_PORT=$(echo "$MARIADB_HOST" | cut -d':' -f2)
+DB_HOST="$(echo "$MARIADB_HOST" | cut -d':' -f1)"
+DB_PORT="$(echo "$MARIADB_HOST" | cut -s -d':' -f2)"
 
-if [ "$DB_PORT" = "$DB_HOST" ]; then
-    DB_PORT=3306
+if [ -z "$DB_PORT" ]; then
+    DB_PORT="3306"
 fi
 
-# ------------------------------------------------------------------------------
-# Read Database Information from config.yaml
-# ------------------------------------------------------------------------------
+DB_NAME="$(python3 /app/scripts/read_config.py database.name)"
+EP_USER="$(python3 /app/scripts/read_config.py database.username)"
+EP_PASSWORD="$(python3 /app/scripts/read_config.py database.password)"
 
-DB_NAME=$(grep "name:" "$CONFIG_FILE" | head -1 | awk '{print $2}')
-EP_USER=$(grep "username:" "$CONFIG_FILE" | head -1 | awk '{print $2}')
-EP_PASSWORD=$(grep "password:" "$CONFIG_FILE" | head -1 | awk '{print $2}')
-
-echo ""
-echo "=============================================================="
-echo " Evidence Processor Database Setup"
-echo "=============================================================="
-echo ""
-echo "Server:"
-echo "    $DB_HOST:$DB_PORT"
-echo ""
-echo "Database:"
-echo "    $DB_NAME"
-echo ""
-echo "Application User:"
-echo "    $EP_USER"
-echo ""
-
-read -p "Continue (y/N)? " answer
-
-if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-    echo ""
-    echo "Cancelled."
-    exit 0
+if [ "$EP_PASSWORD" = "CHANGE_ME" ]; then
+    echo "ERROR: database.password is still CHANGE_ME in config.yaml"
+    exit 1
 fi
 
-echo ""
-echo "Creating database and user..."
+echo "=============================================================="
+echo "Evidence Processor Database Setup"
+echo "=============================================================="
+echo "Server   : $DB_HOST:$DB_PORT"
+echo "Database : $DB_NAME"
+echo "User     : $EP_USER"
 echo ""
 
 mysql \
@@ -119,12 +90,4 @@ FLUSH PRIVILEGES;
 EOF
 
 echo ""
-echo "=============================================================="
-echo " Setup Complete"
-echo "=============================================================="
-echo ""
-echo "Database successfully created."
-echo "Application user successfully created."
-echo ""
-echo "You may now delete this script if desired."
-echo ""
+echo "Database setup complete."
