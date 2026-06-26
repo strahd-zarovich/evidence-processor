@@ -1,25 +1,68 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-CONFIG_DIR="/data/config"
-DEFAULTS_DIR="/app/defaults"
+# ------------------------------------------------------------------------------
+# Evidence Processor Entrypoint
+#
+# Responsibilities:
+#   - Prepare /data folder structure.
+#   - Seed editable config files from /app/defaults.
+#   - Normalize permissions for UnRAID appdata.
+#   - Run the current startup command.
+# ------------------------------------------------------------------------------
 
-mkdir -p "$CONFIG_DIR"
+PUID="${PUID:-99}"
+PGID="${PGID:-100}"
+UMASK="${UMASK:-0002}"
 
-if [ ! -f "$CONFIG_DIR/config.yaml" ]; then
-    echo "[INFO] No config.yaml found. Copying default config..."
-    cp "$DEFAULTS_DIR/config.yaml" "$CONFIG_DIR/config.yaml"
-fi
+DATA_DIR="${DATA_DIR:-/data}"
+CONFIG_DIR="${CONFIG_DIR:-/data/config}"
+LOG_DIR="${LOG_DIR:-/data/logs}"
 
-if [ ! -f "$CONFIG_DIR/create_db_user.sh" ]; then
-    echo "[INFO] No create_db_user.sh found. Copying one-time setup script..."
-    cp "$DEFAULTS_DIR/create_db_user.sh" "$CONFIG_DIR/create_db_user.sh"
-    chmod +x "$CONFIG_DIR/create_db_user.sh"
-fi
+export EP_CONFIG="${EP_CONFIG:-$CONFIG_DIR/config.yaml}"
 
-mkdir -p /data/logs
+log() {
+  local level="${1:-INFO}"
+  shift || true
+  echo "[$level] $*"
+}
 
-echo "[INFO] Evidence Processor starting..."
-echo "[INFO] Config: $EP_CONFIG"
+mkdir -p "$CONFIG_DIR" "$LOG_DIR"
+umask "$UMASK"
 
-exec gosu "${PUID}:${PGID}" python3 /app/scripts/check_mariadb.py
+# ------------------------------------------------------------------------------
+# Seed default config files if missing.
+# Existing user-edited files are never overwritten.
+# ------------------------------------------------------------------------------
+
+for file in /app/defaults/*; do
+  filename="$(basename "$file")"
+
+  if [ ! -f "$CONFIG_DIR/$filename" ]; then
+    cp "$file" "$CONFIG_DIR/$filename"
+    log INFO "Seeded default config: $filename"
+  fi
+done
+
+# ------------------------------------------------------------------------------
+# Normalize permissions so UnRAID SMB/editor can modify config files.
+# ------------------------------------------------------------------------------
+
+chgrp -R "$PGID" "$DATA_DIR" 2>/dev/null || true
+chmod -R g+rwX "$DATA_DIR" 2>/dev/null || true
+chmod g+s "$CONFIG_DIR" "$LOG_DIR" 2>/dev/null || true
+
+# Also make shell scripts executable.
+find "$CONFIG_DIR" -type f -name "*.sh" -exec chmod 775 {} \; 2>/dev/null || true
+
+# Avoid getpass/getuser issues when running as numeric UID.
+export USER="${USER:-nobody}"
+export LOGNAME="${LOGNAME:-nobody}"
+export HOME="${HOME:-/tmp}"
+
+log INFO "Evidence Processor starting..."
+log INFO "Config: $EP_CONFIG"
+log INFO "MariaDB Host: ${MARIADB_HOST:-not set}"
+
+# For v0.0.1, run the MariaDB connection check.
+exec python3 /app/scripts/check_mariadb.py
