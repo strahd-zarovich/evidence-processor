@@ -1,0 +1,84 @@
+# ======================================================================
+# Evidence Processor
+#
+# Configuration File
+#
+# Purpose:
+#   Primary application configuration.
+#
+# Notes:
+#   - This file is intended to be user editable.
+#   - Machine-specific settings (such as the MariaDB server address)
+#     are provided through Docker environment variables.
+#   - The first startup copies this file from /app/defaults into the
+#     mounted configuration directory if it does not already exist.
+#
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# Application Settings
+# ----------------------------------------------------------------------
+
+application:
+  name: Evidence Processor
+  version: 0.0.1
+  log_level: INFO
+
+
+# ----------------------------------------------------------------------
+# Database Settings
+#
+# MARIADB_HOST (host:port) is supplied by Docker.
+#
+# Example:
+#     192.168.5.20:3306
+#
+# ----------------------------------------------------------------------
+
+database:
+  name: evidence_processor
+  username: evidence_user
+  password: CHANGE_ME
+
+  connection_timeout: 10
+  charset: utf8mb4
+
+
+# ----------------------------------------------------------------------
+# Document Processing
+# ----------------------------------------------------------------------
+
+processing:
+
+  recursive_scan: true
+
+  file_extensions:
+    - ".txt"
+
+  skip_processed_files: true
+  detect_modified_files: true
+  stop_on_database_error: true
+
+
+# ----------------------------------------------------------------------
+# Logging
+# ----------------------------------------------------------------------
+
+logging:
+
+  console: true
+
+  file: true
+
+  directory: /app/logs
+
+
+# ----------------------------------------------------------------------
+# Document Storage
+# ----------------------------------------------------------------------
+
+documents:
+
+  calculate_sha256: true
+
+  store_full_text: true
