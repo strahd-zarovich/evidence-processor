@@ -34,7 +34,7 @@ class Database:
             )
 
             if self.logger:
-                self.logger.info("Connected to MariaDB host=%s database=%s", db.get("host"), db.get("database"))
+                self.logger.info("Connected to MariaDB host=%s database=%s", db.get("host"), db.get("name"))
 
             return self.connection
 
