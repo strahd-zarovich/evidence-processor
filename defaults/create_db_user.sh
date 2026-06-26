@@ -37,7 +37,7 @@ ADMIN_PASSWORD="CHANGE_ME"
 # Read Configuration
 # ------------------------------------------------------------------------------
 
-CONFIG_FILE="/app/config/config.yaml"
+CONFIG_FILE="${EP_CONFIG:-/data/config/config.yaml}"
 
 if [ ! -f "$CONFIG_FILE" ]; then
     echo ""

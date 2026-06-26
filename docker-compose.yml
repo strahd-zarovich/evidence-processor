@@ -5,7 +5,6 @@ services:
     environment:
       - EP_CONFIG=/app/config/config.yaml
       - MARIADB_HOST=${MARIADB_HOST}
-      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
     volumes:
       - /mnt/user/Documents/EvidenceProcessor/data:/data:ro
       - /mnt/user/appdata/evidence-processor/logs:/app/logs
