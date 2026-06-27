@@ -1,20 +1,38 @@
 EvidenceProcessor TODO
 
-[ ] 00 - Project Setup
-    [ ] Create folder structure
-    [ ] Add README.md
-    [ ] Add .env.example
-    [ ] Add docker-compose.yml
-    [ ] Add requirements.txt
+[x] 00 - Project Setup
+    [x] Create folder structure
+    [x] Add README.md
+    [x] Add TODO.md
+    [x] Add docker-compose.yml
+    [x] Add requirements.txt
+    [x] Add Dockerfile
+    [x] Add entrypoint.sh
+    [x] Add VERSION file
+    [x] Add release.sh
 
-[ ] 01 - MariaDB Connection Check
-    [ ] Create check_mariadb.py
-    [ ] Read DB settings from .env
-    [ ] Run SELECT 1
-    [ ] Exit cleanly on success
-    [ ] Exit with error if DB unavailable
+[x] 01 - Startup / MariaDB Foundation
+    [x] Create common.py
+    [x] Create logger.py
+    [x] Create database.py
+    [x] Create check_config.py
+    [x] Create initialize_database.py
+    [x] Create check_mariadb.py
+    [x] Seed default config files into /data/config
+    [x] Stop startup if database.password is still CHANGE_ME
+    [x] Automatically create MariaDB database
+    [x] Automatically create MariaDB application user
+    [x] Verify application user can connect
+    [x] Confirm repeat startup is idempotent
 
-[ ] 02 - Schema Creator
+[ ] 02 - Startup Cleanup
+    [ ] Remove duplicate print output
+    [ ] Standardize startup logging
+    [ ] Add startup summary banner
+    [ ] Decide how to handle/remove admin credentials after initialization
+    [ ] Add maintenance method to reset/remove test DB user if needed
+
+[ ] 03 - Schema Creator
     [ ] Create create_schema.py
     [ ] Create documents table
     [ ] Create document_text table
@@ -24,8 +42,9 @@ EvidenceProcessor TODO
     [ ] Create topics table
     [ ] Create relationship tables
     [ ] Create processing_log table
+    [ ] Add schema version tracking
 
-[ ] 03 - Document Loader
+[ ] 04 - Document Loader
     [ ] Recursively scan TXT folder
     [ ] Calculate SHA256 for each TXT
     [ ] Skip unchanged files
@@ -34,7 +53,7 @@ EvidenceProcessor TODO
     [ ] Insert full extracted text
     [ ] Stop safely if MariaDB unavailable
 
-[ ] 04 - Document Classifier
+[ ] 05 - Document Classifier
     [ ] Classify each document
     [ ] Email Chain
     [ ] Single Email
@@ -46,7 +65,7 @@ EvidenceProcessor TODO
     [ ] Medical Record
     [ ] Unknown
 
-[ ] 05 - Segment Builder
+[ ] 06 - Segment Builder
     [ ] Email chains become multiple segments
     [ ] Memos become one segment
     [ ] Letters become one segment
@@ -55,7 +74,7 @@ EvidenceProcessor TODO
     [ ] Store segment confidence
     [ ] Mark needs_review when uncertain
 
-[ ] 06 - Timeline Builder
+[ ] 07 - Timeline Builder
     [ ] Create one event from each segment
     [ ] Preserve date
     [ ] Preserve time
@@ -63,7 +82,7 @@ EvidenceProcessor TODO
     [ ] Link event back to segment
     [ ] Link segment back to document
 
-[ ] 07 - Entity and Topic Extraction
+[ ] 08 - Entity and Topic Extraction
     [ ] Extract people
     [ ] Extract organizations
     [ ] Extract locations
@@ -71,7 +90,7 @@ EvidenceProcessor TODO
     [ ] Link entities to timeline events
     [ ] Link topics to timeline events
 
-[ ] 08 - Reports / Export
+[ ] 09 - Reports / Export
     [ ] Date range report
     [ ] Person report
     [ ] Topic report
@@ -80,7 +99,7 @@ EvidenceProcessor TODO
     [ ] Export CSV
     [ ] Export XLSX
 
-[ ] 09 - WebUI
+[ ] 10 - WebUI
     [ ] Dashboard
     [ ] Document search
     [ ] Timeline view
@@ -90,14 +109,14 @@ EvidenceProcessor TODO
     [ ] Source document view
     [ ] Export buttons
 
-[ ] 10 - AI Narrative Tools
+[ ] 11 - AI Narrative Tools
     [ ] Generate date-range explanation
     [ ] Generate case chronology
     [ ] Generate person summary
     [ ] Generate topic summary
     [ ] Generate book chapter draft from selected date range
 
-[ ] 11 - Maintenance
+[ ] 12 - Maintenance
     [ ] Backup DB
     [ ] Restore DB
     [ ] Reprocess selected document

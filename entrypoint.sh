@@ -102,25 +102,25 @@ esac
 # Step 2: Check whether configured database already exists.
 # ------------------------------------------------------------------------------
 
-set +e
-/app/scripts/check_database.py
-DB_CHECK_RC=$?
-set -e
+# set +e
+# /app/scripts/check_database.py
+# DB_CHECK_RC=$?
+# set -e
 
-case "$DB_CHECK_RC" in
-  0)
-    log INFO "Database already exists. Continuing startup."
-    ;;
-  1)
-    log WARNING "Database does not exist yet."
-    log INFO "Database initialization will be added in the next build."
-    exit 1
-    ;;
-  *)
-    log ERROR "Database check failed. Verify MariaDB host, port, and configuration."
-    exit 1
-    ;;
-esac
+# case "$DB_CHECK_RC" in
+#   0)
+#     log INFO "Database already exists. Continuing startup."
+#     ;;
+#   1)
+#     log WARNING "Database does not exist yet."
+#     log INFO "Database initialization will be added in the next build."
+#     exit 1
+#     ;;
+#   *)
+#     log ERROR "Database check failed. Verify MariaDB host, port, and configuration."
+#     exit 1
+#     ;;
+# esac
 
 # ------------------------------------------------------------------------------
 # Step 3: Ensure MariaDB database and application user exist.
