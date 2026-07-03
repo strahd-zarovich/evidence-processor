@@ -31,7 +31,12 @@ def main():
 
         db = Database(config, logger)
         db.connect()
-        db.ping()
+
+        result = db.query_one(
+            "SELECT VERSION() AS version;"
+        )
+
+        db.disconnect()
 
         result = db.query_one(
             "SELECT VERSION() AS version;"
@@ -41,9 +46,6 @@ def main():
 
         logger.info("MariaDB connection successful")
         logger.info("Server version: %s", result.get("version"))
-
-        print("MariaDB connection successful.")
-        print(f"Server version: {result.get('version')}")
 
     except ConfigError as e:
         fail(f"Configuration error: {e}")

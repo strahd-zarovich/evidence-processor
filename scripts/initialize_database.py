@@ -8,20 +8,6 @@ File:
 
 Purpose:
     Ensure the Evidence Processor MariaDB database and application user exist.
-
-Responsibilities:
-    - Connect to MariaDB using administrator credentials.
-    - Create the configured database if missing.
-    - Create the configured application user if missing.
-    - Grant permissions on the configured database.
-    - Exit cleanly if everything already exists.
-
-This script is safe to run repeatedly.
-
-This script should not:
-    - Process documents.
-    - Create application tables.
-    - Build timelines.
 ==============================================================================
 """
 
@@ -32,6 +18,8 @@ from logger import get_logger
 
 
 def main() -> int:
+    logger = None
+
     try:
         config = load_config()
         logger = get_logger("initialize_database", config)
@@ -72,7 +60,7 @@ def main() -> int:
 
             if not user_exists:
                 cursor.execute(
-                    f"CREATE USER %s@'%%' IDENTIFIED BY %s;",
+                    "CREATE USER %s@'%%' IDENTIFIED BY %s;",
                     (app_user, app_password),
                 )
                 logger.info("Created application user: %s", app_user)
@@ -89,15 +77,20 @@ def main() -> int:
         connection.close()
 
         logger.info("Database initialization complete")
-        print("Database initialization complete.")
         return 0
 
     except ConfigError as e:
-        print(f"CONFIG ERROR: {e}")
+        if logger:
+            logger.error("Configuration error: %s", e)
+        else:
+            print(f"[ERROR] Configuration error: {e}")
         return 1
 
     except Exception as e:
-        print(f"ERROR: Database initialization failed: {e}")
+        if logger:
+            logger.error("Database initialization failed: %s", e)
+        else:
+            print(f"[ERROR] Database initialization failed: {e}")
         return 2
 
 
