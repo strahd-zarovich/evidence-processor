@@ -72,4 +72,5 @@ export HOME="${HOME:-/tmp}"
 
 /app/scripts/check_config.py
 /app/scripts/initialize_database.py
+/app/scripts/create_schema.py
 exec /app/scripts/check_mariadb.py
