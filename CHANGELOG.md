@@ -1,3 +1,22 @@
+## 0.0.1e
+
+### Added
+- Added additional configuration validation.
+- Added validation for administrator credentials.
+- Added configuration sanity checks for database port and timeout.
+
+### Changed
+- Standardized startup logging across all startup scripts.
+- Simplified `entrypoint.sh` to act only as the startup orchestrator.
+- Moved detailed startup logging into the Python modules.
+- Improved startup validation and error reporting.
+- Confirmed repeat startup is fully idempotent.
+
+### Fixed
+- Removed duplicate startup messages.
+- Fixed inconsistent logging between startup scripts.
+- Improved first-run startup behavior.
+
 ## 0.0.1d
 
 ### Added

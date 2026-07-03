@@ -22,7 +22,7 @@ from database import Database, DatabaseError
 from logger import get_logger
 
 
-def main():
+def main() -> int:
     try:
         config = load_config()
         logger = get_logger("check_mariadb", config)
@@ -32,30 +32,27 @@ def main():
         db = Database(config, logger)
         db.connect()
 
-        result = db.query_one(
-            "SELECT VERSION() AS version;"
-        )
-
-        db.disconnect()
-
-        result = db.query_one(
-            "SELECT VERSION() AS version;"
-        )
-
-        db.disconnect()
+        result = db.query_one("SELECT VERSION() AS version;")
 
         logger.info("MariaDB connection successful")
         logger.info("Server version: %s", result.get("version"))
 
+        db.disconnect()
+
+        return 0
+
     except ConfigError as e:
         fail(f"Configuration error: {e}")
+        return 1
 
     except DatabaseError as e:
         fail(f"Database error: {e}")
+        return 2
 
     except Exception as e:
         fail(f"Unexpected error: {e}")
+        return 3
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

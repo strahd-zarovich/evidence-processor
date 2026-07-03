@@ -25,12 +25,12 @@ EvidenceProcessor TODO
     [x] Verify application user can connect
     [x] Confirm repeat startup is idempotent
 
-[ ] 02 - Startup Cleanup
-    [ ] Remove duplicate print output
-    [ ] Standardize startup logging
-    [ ] Add startup summary banner
-    [ ] Decide how to handle/remove admin credentials after initialization
-    [ ] Add maintenance method to reset/remove test DB user if needed
+[x] 02 - Startup Cleanup
+    [x] Remove duplicate print output
+    [x] Standardize startup logging
+    [x] Add startup summary banner
+    [x] Decide how to handle/remove admin credentials after initialization
+    [x] Add maintenance method to reset/remove test DB user if needed
 
 [ ] 03 - Schema Creator
     [ ] Create create_schema.py
@@ -123,3 +123,5 @@ EvidenceProcessor TODO
     [ ] Rebuild derived tables
     [ ] Log errors
     [ ] Version schema
+    [ ] Remove administrator credentials after initial database setup
+    [ ] Support automatic database credential rotation
