@@ -43,28 +43,30 @@ REQUIRED_CONFIG_VALUES = [
 
 
 def main() -> int:
+    print("[INFO] Checking configuration...")
+
     try:
         config = load_config()
 
     except ConfigError as e:
-        print(f"CONFIG ERROR: {e}")
+        print(f"[ERROR] Configuration file problem: {e}")
         return 1
 
     for key in REQUIRED_CONFIG_VALUES:
         value = get_config_value(config, key)
 
         if value is None or str(value).strip() == "":
-            print(f"CONFIG ERROR: Missing required value: {key}")
+            print(f"[ERROR] Missing required configuration value: {key}")
             return 2
 
     db_password = str(get_config_value(config, "database.password", "")).strip()
 
     if db_password == "CHANGE_ME":
-        print("CONFIG ERROR: database.password is still CHANGE_ME")
-        print("Edit /data/config/config.yaml before continuing.")
+        print("[ERROR] database.password is still CHANGE_ME")
+        print("[ERROR] Edit /data/config/config.yaml before continuing.")
         return 3
 
-    print("Configuration check successful.")
+    print("[INFO] Configuration check passed.")
     return 0
 
 
