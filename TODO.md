@@ -33,27 +33,44 @@ EvidenceProcessor TODO
     [x] Add maintenance method to reset/remove test DB user if needed
 
 [ ] 03 - Schema Creator
-    [ ] Create create_schema.py
-    [ ] Create documents table
-    [ ] Create document_text table
-    [ ] Create document_segments table
-    [ ] Create timeline_events table
+    [x] Create schema.py
+    [x] Create create_schema.py
+    [x] Create schema_version table
+    [x] Create documents table
+    [x] Create document_text table
+    [x] Create document_segments table
+    [x] Create timeline_events table
+
     [ ] Create people table
+    [ ] Create organizations table
     [ ] Create topics table
     [ ] Create relationship tables
     [ ] Create processing_log table
-    [ ] Add schema version tracking
 
-[ ] 04 - Document Loader
-    [ ] Recursively scan TXT folder
-    [ ] Calculate SHA256 for each TXT
+    [ ] Create check_schema.py
+    [ ] Verify schema version
+    [ ] Verify required tables
+    [ ] Verify required indexes
+    [ ] Integrate check_schema.py into startup
+
+[ ] 04 - Document Import
+    [ ] Recursively scan import folder
+    [ ] Detect supported file types
+    [ ] Calculate SHA256
     [ ] Skip unchanged files
-    [ ] Detect changed files
+    [ ] Detect modified files
     [ ] Insert document metadata
-    [ ] Insert full extracted text
-    [ ] Stop safely if MariaDB unavailable
+    [ ] Record processing status
 
-[ ] 05 - Document Classifier
+[ ] 05 - Text Extraction
+    [ ] Extract text from PDF
+    [ ] Extract text from TXT
+    [ ] OCR image-only PDFs
+    [ ] Store extracted text
+    [ ] Record extraction method
+    [ ] Record extraction errors
+
+[ ] 06 - Document Classifier
     [ ] Classify each document
     [ ] Email Chain
     [ ] Single Email
@@ -65,7 +82,7 @@ EvidenceProcessor TODO
     [ ] Medical Record
     [ ] Unknown
 
-[ ] 06 - Segment Builder
+[ ] 07 - Segment Builder
     [ ] Email chains become multiple segments
     [ ] Memos become one segment
     [ ] Letters become one segment
@@ -74,54 +91,58 @@ EvidenceProcessor TODO
     [ ] Store segment confidence
     [ ] Mark needs_review when uncertain
 
-[ ] 07 - Timeline Builder
+[ ] 08 - Timeline Builder
     [ ] Create one event from each segment
     [ ] Preserve date
     [ ] Preserve time
-    [ ] Create short factual event summary
-    [ ] Link event back to segment
-    [ ] Link segment back to document
+    [ ] Create factual event summary
+    [ ] Link event to segment
+    [ ] Link segment to document
 
-[ ] 08 - Entity and Topic Extraction
+[ ] 09 - Entity and Topic Extraction
     [ ] Extract people
     [ ] Extract organizations
     [ ] Extract locations
     [ ] Extract topics
+    [ ] Link entities to documents
     [ ] Link entities to timeline events
     [ ] Link topics to timeline events
 
-[ ] 09 - Reports / Export
+[ ] 10 - Reports / Export
     [ ] Date range report
     [ ] Person report
+    [ ] Organization report
     [ ] Topic report
     [ ] Supporting documents report
     [ ] Review-needed report
     [ ] Export CSV
     [ ] Export XLSX
 
-[ ] 10 - WebUI
+[ ] 11 - WebUI
     [ ] Dashboard
     [ ] Document search
     [ ] Timeline view
     [ ] Date range filter
     [ ] Person filter
+    [ ] Organization filter
     [ ] Topic filter
     [ ] Source document view
     [ ] Export buttons
 
-[ ] 11 - AI Narrative Tools
+[ ] 12 - AI Narrative Tools
     [ ] Generate date-range explanation
     [ ] Generate case chronology
     [ ] Generate person summary
+    [ ] Generate organization summary
     [ ] Generate topic summary
-    [ ] Generate book chapter draft from selected date range
+    [ ] Generate book chapter draft
 
-[ ] 12 - Maintenance
-    [ ] Backup DB
-    [ ] Restore DB
+[ ] 13 - Maintenance
+    [ ] Backup database
+    [ ] Restore database
     [ ] Reprocess selected document
     [ ] Rebuild derived tables
-    [ ] Log errors
-    [ ] Version schema
+    [ ] Log processing errors
+    [ ] Schema migrations
     [ ] Remove administrator credentials after initial database setup
     [ ] Support automatic database credential rotation
